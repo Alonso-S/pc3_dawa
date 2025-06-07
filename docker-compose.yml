@@ -1,0 +1,38 @@
+services:
+  # Contenedor para la base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: farmacia_pc3
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - nextjs_network
+
+  # Contenedor para la aplicación Next.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-app
+    environment:
+      DATABASE_URL: mysql://root:rootpassword@db:3306/farmacia_pc3
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - nextjs_network
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  nextjs_network:
+    driver: bridge
