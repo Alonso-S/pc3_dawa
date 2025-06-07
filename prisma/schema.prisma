@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Medicamento {
+  id               Int               @id @default(autoincrement())
+  descripcionMed   String?
+  fechaFabricacion DateTime?
+  fechaVencimiento DateTime?
+  Presentacion     String?
+  stock            Int?
+  precioVentaUni   Decimal?          @db.Decimal(10, 2)
+  precioVentaPres  Decimal?          @db.Decimal(10, 2)
+  CodTipoMed       Int?
+  Marca            String?
+  CodEspec         Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  detallesVenta    DetalleOrdenVta[]
+  tipoMedic        TipoMedic?        @relation(fields: [CodTipoMed], references: [id])
+  especialidad     Especialidad?     @relation(fields: [CodEspec], references: [id])
+}
+
+model DetalleOrdenVta {
+  id                Int          @id @default(autoincrement())
+  NroOrdenVta       Int?
+  CodMedicamento    Int?
+  descripcionMed    String?
+  cantidadRequerida Int?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  ordenVenta        OrdenVenta?  @relation(fields: [NroOrdenVta], references: [id])
+  medicamento       Medicamento? @relation(fields: [CodMedicamento], references: [id])
+}
+
+model OrdenVenta {
+  id           Int               @id @default(autoincrement())
+  fechaEmision DateTime?
+  Motivo       String?
+  Situacion    String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  detalles     DetalleOrdenVta[]
+}
+
+model TipoMedic {
+  id           Int           @id @default(autoincrement())
+  descripcion  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  medicamentos Medicamento[]
+}
+
+model Especialidad {
+  id             Int           @id @default(autoincrement())
+  descripcionEsp String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  medicamentos   Medicamento[]
+}
