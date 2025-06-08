@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 // GET - Obtener un medicamento por ID
 // Corregir el error de params - deben ser awaited en Next.js 15

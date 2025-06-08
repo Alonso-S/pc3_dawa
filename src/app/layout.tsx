@@ -1,20 +1,20 @@
-import type React from "react"
-import "./globals.css"
-import Navbar from "@/components/Navbar"
-import { Inter } from "next/font/google"
+import type React from "react";
+import "./globals.css";
+import { Inter } from "next/font/google";
+import Navbar from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Sistema de Farmacia",
   description: "Sistema de gestión para farmacia",
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="es">
@@ -23,5 +23,5 @@ export default function RootLayout({
         <main className="container mx-auto px-4 py-8">{children}</main>
       </body>
     </html>
-  )
+  );
 }

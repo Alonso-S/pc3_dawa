@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import DateFormatter from "@/components/DateFormatter"
 import styles from "./DetallesVenta.module.css"
 
 interface DetalleVenta {
@@ -23,6 +25,8 @@ export default function DetallesVentaPage() {
   const [detallesVenta, setDetallesVenta] = useState<DetalleVenta[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const ordenFilter = searchParams.get("orden")
 
   useEffect(() => {
     const fetchDetallesVenta = async () => {
@@ -32,7 +36,13 @@ export default function DetallesVentaPage() {
           throw new Error("Error al cargar detalles de venta")
         }
         const data = await response.json()
-        setDetallesVenta(data)
+
+        // Filtrar por orden si se especifica
+        const filteredData = ordenFilter
+          ? data.filter((detalle: DetalleVenta) => detalle.NroOrdenVta === Number.parseInt(ordenFilter))
+          : data
+
+        setDetallesVenta(filteredData)
       } catch (err) {
         setError("Error al cargar los detalles de venta")
         console.error(err)
@@ -42,7 +52,7 @@ export default function DetallesVentaPage() {
     }
 
     fetchDetallesVenta()
-  }, [])
+  }, [ordenFilter])
 
   const handleDelete = async (id: number) => {
     if (confirm("¿Está seguro que desea eliminar este detalle de venta?")) {
@@ -69,11 +79,22 @@ export default function DetallesVentaPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Detalles de Órdenes de Venta</h1>
+        <h1 className="text-2xl font-bold">
+          Detalles de Órdenes de Venta
+          {ordenFilter && ` - Orden #${ordenFilter}`}
+        </h1>
         <Link href="/detalles-venta/nuevo" className={styles.btnPrimary}>
           Nuevo Detalle de Venta
         </Link>
       </div>
+
+      {ordenFilter && (
+        <div className="mb-4">
+          <Link href="/detalles-venta" className="text-blue-600 hover:underline">
+            ← Ver todos los detalles
+          </Link>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className={styles.table}>
@@ -99,9 +120,7 @@ export default function DetallesVentaPage() {
                   <td>{detalle.descripcionMed || (detalle.medicamento && detalle.medicamento.descripcionMed)}</td>
                   <td>{detalle.cantidadRequerida}</td>
                   <td>
-                    {detalle.ordenVenta && detalle.ordenVenta.fechaEmision
-                      ? new Date(detalle.ordenVenta.fechaEmision).toLocaleDateString()
-                      : "N/A"}
+                    <DateFormatter date={detalle.ordenVenta?.fechaEmision} />
                   </td>
                   <td>{detalle.ordenVenta?.Situacion || "N/A"}</td>
                   <td className="flex gap-2">
@@ -120,7 +139,9 @@ export default function DetallesVentaPage() {
             ) : (
               <tr>
                 <td colSpan={8} className="text-center py-4">
-                  No hay detalles de venta registrados
+                  {ordenFilter
+                    ? `No hay detalles para la orden #${ordenFilter}`
+                    : "No hay detalles de venta registrados"}
                 </td>
               </tr>
             )}

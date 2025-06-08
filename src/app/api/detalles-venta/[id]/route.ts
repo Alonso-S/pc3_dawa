@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 // GET - Obtener un detalle de venta por ID
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {

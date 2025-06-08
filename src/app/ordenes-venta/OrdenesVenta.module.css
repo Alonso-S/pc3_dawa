@@ -1,0 +1,52 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status.completada {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status.pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status.cancelada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.btnInfo {
+  background-color: #0ea5e9;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+}

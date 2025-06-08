@@ -1,34 +1,33 @@
-"use client";
+"use client"
 
-import type React from "react";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import styles from "./NuevoDetalleVenta.module.css";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import styles from "./NuevoDetalleVenta.module.css"
 
 interface Medicamento {
-  id: number;
-  descripcionMed: string | null;
+  id: number
+  descripcionMed: string | null
 }
 
 interface OrdenVenta {
-  id: number;
-  fechaEmision: string | null;
-  Situacion: string | null;
+  id: number
+  fechaEmision: string | null
+  Situacion: string | null
 }
 
 export default function NuevoDetalleVentaPage() {
-  const router = useRouter();
+  const router = useRouter()
   const [formData, setFormData] = useState({
     NroOrdenVta: "",
     CodMedicamento: "",
     descripcionMed: "",
     cantidadRequerida: 1,
-  });
-  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
-  const [ordenesVenta, setOrdenesVenta] = useState<OrdenVenta[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  })
+  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([])
+  const [ordenesVenta, setOrdenesVenta] = useState<OrdenVenta[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,64 +35,58 @@ export default function NuevoDetalleVentaPage() {
         const [medicamentosRes, ordenesRes] = await Promise.all([
           fetch("/api/medicamentos"),
           fetch("/api/ordenes-venta"),
-        ]);
+        ])
 
         if (medicamentosRes.ok) {
-          const medicamentos = await medicamentosRes.json();
-          setMedicamentos(medicamentos);
+          const medicamentos = await medicamentosRes.json()
+          setMedicamentos(medicamentos)
         }
 
         if (ordenesRes.ok) {
-          const ordenes = await ordenesRes.json();
-          setOrdenesVenta(ordenes);
+          const ordenes = await ordenesRes.json()
+          setOrdenesVenta(ordenes)
         }
       } catch (err) {
-        console.error("Error al cargar datos:", err);
+        console.error("Error al cargar datos:", err)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
 
     if (name === "CodMedicamento" && value) {
-      const medicamento = medicamentos.find((med) =>
-        med.id === Number.parseInt(value)
-      );
+      const medicamento = medicamentos.find((med) => med.id === Number.parseInt(value))
       if (medicamento) {
         setFormData({
           ...formData,
           [name]: value,
           descripcionMed: medicamento.descripcionMed || "",
-        });
-        return;
+        })
+        return
       }
     }
 
     setFormData({
       ...formData,
       [name]: value,
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
       const dataToSend = {
         ...formData,
         NroOrdenVta: Number.parseInt(formData.NroOrdenVta),
         CodMedicamento: Number.parseInt(formData.CodMedicamento),
-        cantidadRequerida: Number.parseInt(
-          formData.cantidadRequerida.toString(),
-        ),
-      };
+        cantidadRequerida: Number.parseInt(formData.cantidadRequerida.toString()),
+      }
 
       const response = await fetch("/api/detalles-venta", {
         method: "POST",
@@ -101,35 +94,40 @@ export default function NuevoDetalleVentaPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(dataToSend),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Error al crear detalle de venta");
+        throw new Error("Error al crear detalle de venta")
       }
 
-      router.push("/detalles-venta");
+      router.push("/detalles-venta")
     } catch (err) {
-      setError("Error al crear el detalle de venta");
-      console.error(err);
+      setError("Error al crear el detalle de venta")
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  const formatFechaEmision = (fecha: string | null) => {
+    if (!fecha) return "Sin fecha"
+    try {
+      return new Date(fecha).toLocaleDateString("es-ES")
+    } catch {
+      return "Fecha inválida"
+    }
+  }
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Nuevo Detalle de Venta</h1>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
           <label htmlFor="NroOrdenVta" className={styles.formLabel}>
-            Orden de Venta
+            Orden de Venta *
           </label>
           <select
             id="NroOrdenVta"
@@ -142,9 +140,7 @@ export default function NuevoDetalleVentaPage() {
             <option value="">Seleccione una orden</option>
             {ordenesVenta.map((orden) => (
               <option key={orden.id} value={orden.id}>
-                {orden.id} - {orden.Situacion} {orden.fechaEmision
-                  ? new Date(orden.fechaEmision).toLocaleDateString()
-                  : "Sin fecha"}
+                {orden.id} - {orden.Situacion} ({formatFechaEmision(orden.fechaEmision)})
               </option>
             ))}
           </select>
@@ -152,7 +148,7 @@ export default function NuevoDetalleVentaPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="CodMedicamento" className={styles.formLabel}>
-            Medicamento
+            Medicamento *
           </label>
           <select
             id="CodMedicamento"
@@ -188,7 +184,7 @@ export default function NuevoDetalleVentaPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="cantidadRequerida" className={styles.formLabel}>
-            Cantidad Requerida
+            Cantidad Requerida *
           </label>
           <input
             type="number"
@@ -203,22 +199,14 @@ export default function NuevoDetalleVentaPage() {
         </div>
 
         <div className={styles.formActions}>
-          <button
-            type="submit"
-            className={styles.btnPrimary}
-            disabled={loading}
-          >
+          <button type="submit" className={styles.btnPrimary} disabled={loading}>
             {loading ? "Guardando..." : "Guardar Detalle"}
           </button>
-          <button
-            type="button"
-            onClick={() => router.push("/detalles-venta")}
-            className={styles.btnSecondary}
-          >
+          <button type="button" onClick={() => router.push("/detalles-venta")} className={styles.btnSecondary}>
             Cancelar
           </button>
         </div>
       </form>
     </div>
-  );
+  )
 }

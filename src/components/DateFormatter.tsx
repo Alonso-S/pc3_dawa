@@ -1,37 +1,42 @@
-"use client";
+"use client"
 
 interface DateFormatterProps {
-    date: string | null;
-    showTime?: boolean;
+  date: string | null | undefined
+  showTime?: boolean
+  fallback?: string
 }
 
-export default function DateFormatter(
-    { date, showTime = false }: DateFormatterProps,
-) {
-    if (!date) return <span>N/A</span>;
+export default function DateFormatter({ date, showTime = false, fallback = "N/A" }: DateFormatterProps) {
+  if (!date) return <span>{fallback}</span>
 
-    const formatDate = (dateString: string) => {
-        try {
-            const dateObj = new Date(dateString);
-            if (showTime) {
-                return dateObj.toLocaleString("es-ES", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                });
-            }
-            return dateObj.toLocaleDateString("es-ES", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-            });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-            return "Fecha inválida";
-        }
-    };
+  const formatDate = (dateString: string): string => {
+    try {
+      const dateObj = new Date(dateString)
 
-    return <span>{formatDate(date)}</span>;
+      // Verificar si la fecha es válida
+      if (isNaN(dateObj.getTime())) {
+        return fallback
+      }
+
+      const options: Intl.DateTimeFormatOptions = {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        timeZone: "America/Lima", // Zona horaria de Perú
+      }
+
+      if (showTime) {
+        options.hour = "2-digit"
+        options.minute = "2-digit"
+        options.hour12 = false
+      }
+
+      return dateObj.toLocaleDateString("es-PE", options)
+    } catch (error) {
+      console.warn("Error formatting date:", error)
+      return fallback
+    }
+  }
+
+  return <span>{formatDate(date)}</span>
 }

@@ -122,7 +122,7 @@ export default function MedicamentosPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-4">
+                <td colSpan={10} className="text-center py-4">
                   No hay medicamentos registrados
                 </td>
               </tr>
